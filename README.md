@@ -34,7 +34,7 @@ npx vercel --prod --yes
 
 ## Typographie
 
-Charte : **Brown** et **Stinger Variable Fit** (titres, chiffre du bandeau). Fichiers auto-hébergés dans `src/fonts/`. Pas Plus Jakarta Sans, pas Syne.
+Charte : **Brown** (texte) et **Stinger Variable Fit** (titres, chiffre du bandeau). Fichiers auto-hébergés dans `src/fonts/`. Pas Plus Jakarta Sans, pas Syne.
 
 ## Nuancier
 
