@@ -222,4 +222,4 @@ if (existsSync(poing) && !existsSync(icon)) {
 const results = await Promise.all(FILES.map(ensure));
 const got = results.filter((r) => r !== "miss").length;
 console.log(`pièces présentes : ${got}/${FILES.length}`);
-If (got < 40) process.exit(1);
+if (got < 40) process.exit(1);
