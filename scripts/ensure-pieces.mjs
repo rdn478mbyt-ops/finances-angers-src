@@ -1,10 +1,14 @@
-import { existsSync, mkdirSync, writeFileSync, statSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, statSync, readFileSync, readdirSync } from "node:fs";
+import { gzipSync, gunzipSync } from "node:zlib";
 import path from "node:path";
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, "public", "pieces");
 const BRAND = path.join(ROOT, "public", "brand");
 const FONTS = path.join(ROOT, "src", "fonts");
+const SEARCH = path.join(ROOT, "public", "search");
+const INDEX_PARTS_REMOTE =
+  "https://raw.githubusercontent.com/rdn478mbyt-ops/finances-angers-src/main/scripts/search-index";
 const SITE = "https://finances-angers-fonds.vercel.app";
 const MIRROR = `${SITE}/pieces`;
 const ANYBODY =
@@ -70,6 +74,7 @@ const FILES = [
 mkdirSync(OUT, { recursive: true });
 mkdirSync(BRAND, { recursive: true });
 mkdirSync(FONTS, { recursive: true });
+mkdirSync(SEARCH, { recursive: true });
 
 async function pull(url, dest, min = 500) {
   if (existsSync(dest) && statSync(dest).size > min) return "ok";
@@ -140,7 +145,66 @@ async function ensureSatoshi() {
   }
 }
 
+async function ensureSearchIndex() {
+  const dest = path.join(SEARCH, "index.json.gz");
+  if (existsSync(dest) && statSync(dest).size > 100_000) {
+    console.log(`index recherche déjà là (${statSync(dest).size} o)`);
+    return;
+  }
+
+  const jsonPath = path.join(ROOT, "src", "data", "pieces-index.json");
+  if (existsSync(jsonPath) && statSync(jsonPath).size > 50_000) {
+    writeFileSync(dest, gzipSync(readFileSync(jsonPath)));
+    console.log(`index recherche gzip depuis pieces-index.json (${statSync(dest).size} o)`);
+    return;
+  }
+
+  const localDir = path.join(ROOT, "scripts", "search-index");
+  const localParts = existsSync(localDir)
+    ? readdirSync(localDir)
+        .filter((f) => /^part-\d+\.b64$/.test(f))
+        .sort()
+    : [];
+
+  let b64 = "";
+  if (localParts.length >= 8) {
+    b64 = localParts
+      .map((n) => readFileSync(path.join(localDir, n), "utf8").replace(/\s/g, ""))
+      .join("");
+  } else {
+    const chunks = [];
+    for (let i = 0; i < 16; i += 1) {
+      const name = `part-${String(i).padStart(2, "0")}.b64`;
+      const res = await fetch(`${INDEX_PARTS_REMOTE}/${name}`);
+      if (!res.ok) break;
+      chunks.push((await res.text()).replace(/\s/g, ""));
+    }
+    b64 = chunks.join("");
+  }
+
+  if (b64.length < 10_000) {
+    console.warn("index recherche manquant — message honnête côté UI, PDF toujours téléchargeables.");
+    return;
+  }
+
+  const buf = Buffer.from(b64, "base64");
+  try {
+    const docs = JSON.parse(gunzipSync(buf).toString("utf8"));
+    if (!Array.isArray(docs) || docs.length < 20) {
+      console.warn(`index recherche trop petit (${Array.isArray(docs) ? docs.length : 0} docs)`);
+      return;
+    }
+  } catch (err) {
+    console.warn("index recherche gzip illisible", err);
+    return;
+  }
+
+  writeFileSync(dest, buf);
+  console.log(`index recherche écrit (${buf.length} o)`);
+}
+
 await ensureSatoshi();
+await ensureSearchIndex();
 
 await Promise.all([
   pull(`${SITE}/brand/logo-ps-rose.png`, path.join(BRAND, "logo-ps-rose.png")),
@@ -151,11 +215,11 @@ await Promise.all([
 
 const poing = path.join(BRAND, "poing-rose.png");
 const icon = path.join(ROOT, "src/app/icon.png");
- if (existsSync(poing) && !existsSync(icon)) {
+if (existsSync(poing) && !existsSync(icon)) {
   writeFileSync(icon, readFileSync(poing));
 }
 
 const results = await Promise.all(FILES.map(ensure));
 const got = results.filter((r) => r !== "miss").length;
 console.log(`pièces présentes : ${got}/${FILES.length}`);
-if (got < 40) process.exit(1);
+If (got < 40) process.exit(1);

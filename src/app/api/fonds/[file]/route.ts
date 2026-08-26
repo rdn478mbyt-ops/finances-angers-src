@@ -69,13 +69,18 @@ export async function GET(
     return NextResponse.redirect(signed, 302);
   }
 
-  return NextResponse.json(
-    {
-      error: "PDF hors bundle Hobby — fichier trop lourd pour git (100 Mo).",
-      file,
-      detail:
-        "Déposer 33._Promesse.pdf et 34._Promesse_dachat.pdf dans public/pieces/ ou /workspace/finances-pdfs/, ou pousser le miroir GitHub privé rdn478mbyt-ops/finances-angers-pieces avec GITHUB_TOKEN.",
-    },
-    { status: 503 },
-  );
+  const fiche =
+    file.startsWith("33.") ? "/pieces/33-promesse" : "/pieces/34-promesse-dachat";
+  const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${file}</title></head>
+<body style="font-family:ui-sans-serif,system-ui,sans-serif;max-width:40rem;margin:3rem auto;padding:0 1rem;line-height:1.45;color:#16141a">
+<h1 style="font-size:1.4rem">Fichier hors bundle Hobby</h1>
+<p>Ce n’est pas une pièce absente. <code>${file}</code> pèse trop pour git / l’archive Vercel Hobby (100 Mo) une fois les 46 autres PDF déjà en ligne.</p>
+<p>L’élu l’obtient dès que le PDF est poussé dans le miroir privé <code>rdn478mbyt-ops/finances-angers-pieces</code> (variable <code>GITHUB_TOKEN</code> sur le projet finances-angers) ou déposé en local. Pas un lien angers.fr.</p>
+<p><a href="${fiche}">Retour à la fiche</a></p>
+</body></html>`;
+
+  return new NextResponse(html, {
+    status: 503,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+  });
 }

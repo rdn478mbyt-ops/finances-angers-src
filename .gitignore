@@ -47,3 +47,6 @@ next-env.d.ts
 # Foncier volumineux — hors git / hors déploiement Hobby 100 Mo
 /public/pieces/33._Promesse.pdf
 /public/pieces/34._Promesse_dachat.pdf
+
+# Index OCR gzip (reconstruit au build depuis scripts/search-index ou pieces-index.json)
+/public/search/index.json.gz
