@@ -92,25 +92,51 @@ async function ensure(file) {
   return pull(`${MIRROR}/${encodeURIComponent(file)}`, path.join(OUT, file), 1000);
 }
 
+function isWoff2(buf) {
+  return Buffer.isBuffer(buf) && buf.length > 1000 && buf.subarray(0, 4).toString("ascii") === "wOF2";
+}
+
+const SATOSHI_CDN = {
+  "satoshi-400.woff2":
+    "https://cdn.fontshare.com/wf/TTX2Z3BF3P6Y5BQT3IV2VNOK6FL22KUT/7QYRJOI3JIMYHGY6CH7SOIFRQLZOLNJ6/KFIAZD4RUMEZIYV6FQ3T3GP5PDBDB6JY.woff2",
+  "satoshi-500.woff2":
+    "https://cdn.fontshare.com/wf/P2LQKHE6KA6ZP4AAGN72KDWMHH6ZH3TA/ZC32TK2P7FPS5GFTL46EU6KQJA24ZYDB/7AHDUZ4A7LFLVFUIFSARGIWCRQJHISQP.woff2",
+  "satoshi-700.woff2":
+    "https://cdn.fontshare.com/wf/LAFFD4SDUCDVQEXFPDC7C53EQ4ZELWQI/PXCT3G6LO6ICM5I3NTYENYPWJAECAWDD/GHM6WVH6MILNYOOCXHXB5GTSGNTMGXZR.woff2",
+};
+
 async function ensureSatoshi() {
   const names = ["satoshi-400.woff2", "satoshi-500.woff2", "satoshi-700.woff2"];
   for (const name of names) {
     const dest = path.join(FONTS, name);
-    if (existsSync(dest) && statSync(dest).size > 1000) continue;
+    if (existsSync(dest) && isWoff2(readFileSync(dest))) continue;
+
     const b64Name = name.replace(/\.woff2$/, ".b64");
     const localB64 = path.join(ROOT, "scripts", b64Name);
-    let b64 = existsSync(localB64) ? readFileSync(localB64, "utf8").trim() : "";
-    if (!b64) {
-      const url = `https://raw.githubusercontent.com/rdn478mbyt-ops/finances-angers-src/main/scripts/${b64Name}`;
-      const res = await fetch(url);
-      if (res.ok) b64 = (await res.text()).trim();
+    if (existsSync(localB64)) {
+      const b64 = readFileSync(localB64, "utf8").replace(/[^A-Za-z0-9+/=]/g, "");
+      const buf = Buffer.from(b64, "base64");
+      if (isWoff2(buf)) {
+        writeFileSync(dest, buf);
+        console.log(`écrit ${path.relative(ROOT, dest)} (${buf.length} o)`);
+        continue;
+      }
     }
-    if (b64) {
-      writeFileSync(dest, Buffer.from(b64, "base64"));
-      console.log(`écrit ${path.relative(ROOT, dest)}`);
-    } else {
-      console.warn(`satoshi manquant ${name}`);
+
+    const cdn = SATOSHI_CDN[name];
+    if (cdn) {
+      const fr = await fetch(cdn);
+      if (fr.ok) {
+        const buf = Buffer.from(await fr.arrayBuffer());
+        if (isWoff2(buf)) {
+          writeFileSync(dest, buf);
+          console.log(`fontshare ${path.relative(ROOT, dest)} (${buf.length} o)`);
+          continue;
+        }
+      }
     }
+
+    console.warn(`satoshi manquant ${name}`);
   }
 }
 
