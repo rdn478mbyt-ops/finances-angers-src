@@ -215,7 +215,7 @@ await Promise.all([
 
 const poing = path.join(BRAND, "poing-rose.png");
 const icon = path.join(ROOT, "src/app/icon.png");
- if (existsSync(poing) && !existsSync(icon)) {
+if (existsSync(poing) && !existsSync(icon)) {
   writeFileSync(icon, readFileSync(poing));
 }
 
