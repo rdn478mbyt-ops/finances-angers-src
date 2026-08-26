@@ -25,7 +25,7 @@ export function RatioBanner() {
   const figure = getBannerFigure(pathname);
 
   return (
-    <div className="z-30 border-t border-white/10 bg-ink text-white lg:sticky lg:bottom-0">
+    <div className="border-t border-white/10 bg-ink text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:gap-6">
         <p className="shrink-0 text-[11px] font-medium uppercase tracking-[0.16em] text-white/70">
           {figure.kicker}

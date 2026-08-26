@@ -47,7 +47,9 @@ export default async function PiecePage({ params }: Props) {
           <p className="mt-5">
             <a
               href={piece.href}
-              download={piece.file}
+              download={piece.status === "offbundle" ? undefined : piece.file}
+              target={piece.status === "offbundle" ? "_blank" : undefined}
+              rel={piece.status === "offbundle" ? "noreferrer" : undefined}
               className="inline-flex rounded-full bg-rouge px-5 py-2.5 text-sm font-medium text-white hover:bg-rouge/90"
             >
               {piece.status === "offbundle"
@@ -57,9 +59,8 @@ export default async function PiecePage({ params }: Props) {
           </p>
           {piece.status === "offbundle" ? (
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/80">
-              Bouton ci-dessus : le fichier réel, pas un lien angers.fr. Trop lourd
-              pour l’archive git / Hobby — servi depuis le disque local ou le miroir
-              GitHub privé des pièces.
+              Lien GitHub Release (tag fonciers-33-34), pas Vercel Hobby, pas
+              angers.fr.
             </p>
           ) : (
             <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export function M57Banner() {
   return (
-    <p className="border-b border-vert-1/25 bg-vert-2/50 text-[12px] leading-snug text-ink">
+    <p className="border-b border-vert-1/25 bg-vert-2 text-[12px] leading-snug text-ink">
       <span className="mx-auto flex max-w-6xl flex-wrap items-baseline gap-x-2 px-4 py-1.5">
         <span className="font-medium">{M57_BANNER}</span>
         <span className="text-ink/70" aria-hidden>

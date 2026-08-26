@@ -42,15 +42,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${brown.variable} ${stinger.variable} h-full scroll-smooth antialiased`}
+      className={`${brown.variable} ${stinger.variable} min-h-full scroll-smooth antialiased`}
     >
       <body className="flex min-h-full flex-col bg-paper font-sans text-ink">
         <TooltipProvider>
+          <a
+            href="#contenu"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-ink focus:shadow"
+          >
+            Aller au contenu
+          </a>
           <div className="sticky top-0 z-40">
             <SiteHeader />
             <M57Banner />
           </div>
-          <main id="contenu" className="flex-1 pb-8 lg:pb-28">
+          <main id="contenu" className="flex-1 scroll-mt-[11rem] pb-8">
             {children}
           </main>
           <RatioBanner />

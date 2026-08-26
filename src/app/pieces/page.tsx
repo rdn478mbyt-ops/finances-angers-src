@@ -79,8 +79,10 @@ export default function PiecesPage() {
                     {doc.href ? (
                       <a
                         href={doc.href}
-                        download
-                        className="text-sm text-ink underline decoration-rose/40 hover:text-rouge"
+                        download={doc.status === "offbundle" ? undefined : true}
+                        target={doc.status === "offbundle" ? "_blank" : undefined}
+                        rel={doc.status === "offbundle" ? "noreferrer" : undefined}
+                        className="text-sm text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge"
                       >
                         Télécharger
                       </a>

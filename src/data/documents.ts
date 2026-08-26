@@ -372,11 +372,20 @@ const conventionFiles: {
   { file: "50._Liste_des_biens.pdf", title: "50. Liste des biens", kind: "liste" },
 ];
 
+export const FONCIER_RELEASE_TAG = "fonciers-33-34";
+
+export const FONCIER_RELEASE_BASE = `https://github.com/rdn478mbyt-ops/finances-angers-pieces/releases/download/${FONCIER_RELEASE_TAG}`;
+
+const OFFBUNDLE_HREF: Record<string, string> = {
+  "33._Promesse.pdf": `${FONCIER_RELEASE_BASE}/33._Promesse.pdf`,
+  "34._Promesse_dachat.pdf": `${FONCIER_RELEASE_BASE}/34._Promesse_dachat.pdf`,
+};
+
 const OFFBUNDLE: Record<string, string> = {
   "33._Promesse.pdf":
-    "Fichier volumineux (52 Mo) : hors git et hors archive Hobby (100 Mo). Le PDF se télécharge ici, ce n’est pas une pièce absente.",
+    "Fichier volumineux (52 Mo) : hors git et hors archive Vercel Hobby. Téléchargement GitHub Release (tag fonciers-33-34), pas un lien angers.fr.",
   "34._Promesse_dachat.pdf":
-    "Fichier volumineux (43 Mo) : hors git et hors archive Hobby (100 Mo). Le PDF se télécharge ici, ce n’est pas une pièce absente.",
+    "Fichier volumineux (43 Mo) : hors git et hors archive Vercel Hobby. Téléchargement GitHub Release (tag fonciers-33-34), pas un lien angers.fr.",
 };
 
 function slugFromFile(file: string) {
@@ -399,7 +408,7 @@ export const fondsConventions: Piece[] = conventionFiles.map((item) => {
     entity: item.entity ?? "ville",
     kind,
     status: (off ? "offbundle" : "available") as DocumentStatus,
-    href: `/pieces/${item.file}`,
+    href: OFFBUNDLE_HREF[item.file] ?? `/pieces/${item.file}`,
     file: item.file,
     note: off,
     session: "Pièces du conseil (27 mars 2026 et annexes)",

@@ -135,8 +135,11 @@
   }
   html {
     @apply font-sans;
-    /* Header (h-14) + bandeau M57 (souvent 2 lignes) : les ancres ne passent pas sous le sticky. */
+    /* Header (h-14) + bandeau M57 : skip-link et ancres. */
     scroll-padding-top: 11rem;
+  }
+  #contenu {
+    scroll-margin-top: 11rem;
   }
   h1,
   h2,
