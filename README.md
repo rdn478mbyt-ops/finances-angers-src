@@ -20,7 +20,7 @@ Ouvrir [http://127.0.0.1:43147](http://127.0.0.1:43147).
 - Face-à-face fonctionnement | investissement (aplats `#00a870` / `#ba4e8e`), barres empilées Ville vs BOA et CA vs DM1, bandeau bas « chiffre à retenir » (non collé sous 1024 px).
 - Bandeau en tête : seul endroit où le calendrier de nomenclature est annoncé. CA 2025, DM n°1 et conseil du 27 mars 2026 ne sont pas présentés comme maquettes du prochain budget.
 - Fonds documentaire : 46 PDF dans `public/pieces/` (noms de fichiers réels), recherche plein texte sur le **calque texte** (index gzip, 54 pièces / 1 112 pages). Les scans sans texte (PV 27 mars, conventions 29) sont nommés : aucun résultat n’est inventé. Libellé à l’écran pour le RBF : « Règlement budgétaire et financier » (fichier `fnancier` = nom réel de la pièce).
-- Hors git / hors archive Hobby (100 Mo) : `33._Promesse.pdf` (52 Mo) et `34._Promesse_dachat.pdf` (43 Mo). Téléchargement depuis la fiche (disque local `/workspace/finances-pdfs/` ou miroir GitHub privé `rdn478mbyt-ops/finances-angers-pieces`). Pas un lien angers.fr.
+- Hors git / hors archive Hobby (100 Mo) : `33._Promesse.pdf` (52 Mo) et `34._Promesse_dachat.pdf` (43 Mo). Téléchargement GitHub Release [`fonciers-33-34`](https://github.com/rdn478mbyt-ops/finances-angers-pieces/releases/tag/fonciers-33-34), pas Vercel. Pas un lien angers.fr.
 
 Chiffres du budget principal : rapport DEL-2026-164 + **04. Maquette compte administratif 2025**. BOA : maquette 04 BOA, p. 7.
 

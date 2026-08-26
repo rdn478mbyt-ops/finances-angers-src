@@ -34,7 +34,8 @@ export function MissingDocs() {
                 {" "}
                 <a
                   href={doc.href}
-                  download={doc.file}
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge"
                 >
                   Télécharger le PDF
