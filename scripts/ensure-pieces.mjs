@@ -205,52 +205,99 @@ async function ensureSearchIndex() {
   console.log(`index recherche écrit (${buf.length} o)`);
 }
 
-function loadExplorerB64() {
+function gzipLooksValid(buf) {
+  if (!Buffer.isBuffer(buf) || buf.length < 5_000 || buf[0] !== 0x1f || buf[1] !== 0x8b) {
+    return false;
+  }
+  try {
+    const json = JSON.parse(gunzipSync(buf).toString("utf8"));
+    return Boolean(
+      json &&
+        typeof json === "object" &&
+        Array.isArray(json.chapters) &&
+        json.chapters.length >= 10 &&
+        Array.isArray(json.accounts) &&
+        Array.isArray(json.lines),
+    );
+  } catch {
+    return false;
+  }
+}
+
+const EXPLORER_PARTS_REMOTE =
+  "https://raw.githubusercontent.com/rdn478mbyt-ops/finances-angers-src/main/scripts/explorer-index";
+
+function decodeExplorerB64(b64) {
+  if (!b64 || b64.length < 10_000) return null;
+  const buf = Buffer.from(b64.replace(/\s/g, ""), "base64");
+  return gzipLooksValid(buf) ? buf : null;
+}
+
+function loadExplorerGzipLocal() {
   const partDir = path.join(ROOT, "scripts", "explorer-index");
   const localParts = existsSync(partDir)
     ? readdirSync(partDir)
         .filter((f) => /^part-\d+\.b64$/.test(f))
         .sort()
     : [];
-  if (localParts.length >= 8) {
-    return localParts
-      .map((n) => readFileSync(path.join(partDir, n), "utf8").replace(/\s/g, ""))
-      .join("");
+  const candidates = [];
+  if (localParts.length > 0) {
+    candidates.push(
+      localParts
+        .map((n) => readFileSync(path.join(partDir, n), "utf8").replace(/\s/g, ""))
+        .join(""),
+    );
   }
   const b64Path = path.join(ROOT, "scripts", "explorer-index.b64");
   if (existsSync(b64Path)) {
-    return readFileSync(b64Path, "utf8").replace(/\s/g, "");
+    candidates.push(readFileSync(b64Path, "utf8").replace(/\s/g, ""));
   }
-  return "";
+  for (const b64 of candidates) {
+    const buf = decodeExplorerB64(b64);
+    if (buf) return buf;
+  }
+  return null;
 }
 
-function ensureExplorerIndex() {
+async function loadExplorerGzipRemote() {
+  const chunks = [];
+  for (let i = 0; i < 16; i += 1) {
+    const name = `part-${String(i).padStart(2, "0")}.b64`;
+    const res = await fetch(`${EXPLORER_PARTS_REMOTE}/${name}`);
+    if (!res.ok) break;
+    chunks.push((await res.text()).replace(/\s/g, ""));
+  }
+  return decodeExplorerB64(chunks.join(""));
+}
+
+async function ensureExplorerIndex() {
   const dest = path.join(EXPLORER, "index.json.gz");
   const jsonPath = path.join(ROOT, "src", "data", "explorer.json");
-  if (existsSync(dest) && statSync(dest).size > 5_000) {
+  if (existsSync(dest) && gzipLooksValid(readFileSync(dest))) {
     console.log(`index explorateur déjà là (${statSync(dest).size} o)`);
     return;
   }
   if (existsSync(jsonPath) && statSync(jsonPath).size > 5_000) {
-    writeFileSync(dest, gzipSync(readFileSync(jsonPath)));
-    console.log(`index explorateur gzip depuis explorer.json (${statSync(dest).size} o)`);
-    return;
-  }
-  const b64 = loadExplorerB64();
-  if (b64.length > 10_000) {
-    const buf = Buffer.from(b64, "base64");
-    if (buf.length > 5_000 && buf[0] === 0x1f && buf[1] === 0x8b) {
+    const buf = gzipSync(readFileSync(jsonPath));
+    if (gzipLooksValid(buf)) {
       writeFileSync(dest, buf);
-      console.log(`index explorateur depuis scripts/explorer-index (${buf.length} o)`);
+      console.log(`index explorateur gzip depuis explorer.json (${statSync(dest).size} o)`);
       return;
     }
+  }
+  let buf = loadExplorerGzipLocal();
+  if (!buf) buf = await loadExplorerGzipRemote();
+  if (buf) {
+    writeFileSync(dest, buf);
+    console.log(`index explorateur depuis scripts/explorer-index (${buf.length} o)`);
+    return;
   }
   console.warn("index explorateur manquant — message honnête côté UI.");
 }
 
 await ensureSatoshi();
 await ensureSearchIndex();
-ensureExplorerIndex();
+await ensureExplorerIndex();
 
 await Promise.all([
   pull(`${SITE}/brand/logo-ps-rose.png`, path.join(BRAND, "logo-ps-rose.png")),
