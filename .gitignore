@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Index OCR gzip (reconstruit au build depuis scripts/search-index ou pieces-index.json)
 /public/search/index.json.gz
+
+# Worker PDF.js (copié au build depuis node_modules)
+/public/pdf.worker.min.mjs

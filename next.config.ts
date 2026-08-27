@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     qualities: [75, 90],
   },
+  transpilePackages: ["pdfjs-dist"],
   async redirects() {
     return [{ source: "/comptes", destination: "/explorer", permanent: false }];
   },
