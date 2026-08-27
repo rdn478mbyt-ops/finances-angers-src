@@ -320,4 +320,11 @@ await Promise.all([
 
 const poing = path.join(BRAND, "poing-rose.png");
 const icon = path.join(ROOT, "src/app/icon.png");
-const icon = path.join(ROOT, "src/app/icon.png");
+if (existsSync(poing) && !existsSync(icon)) {
+  writeFileSync(icon, readFileSync(poing));
+}
+
+const results = await Promise.all(FILES.map(ensure));
+const got = results.filter((r) => r !== "miss").length;
+console.log(`pièces présentes : ${got}/${FILES.length}`);
+if (got < 40) process.exit(1);
