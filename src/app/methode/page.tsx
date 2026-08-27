@@ -36,6 +36,12 @@ export default function MethodePage() {
           DEL-2026-166 (DM n°1 2026), DEL-2026-162 (RBF), DEL-2026-2 (DOB 2026).
         </li>
         <li>
+          Explorateur budgétaire (<Link href="/explorer" className="underline decoration-rose/40 hover:text-rouge">/explorer</Link>) :
+          chapitres de l’état II-3 du compte de gestion, articles du II-4 et
+          de la maquette, lignes fonction non nulles de la présentation croisée.
+          Pas un recyclage des agrégats du rapport DEL-2026-164.
+        </li>
+        <li>
           Fonds des 46 PDF : 04. Maquette CA 2025 (Ville + BOA), 06. Maquette DM n°1
           (Ville + BOA), 03. Comptes de gestion, 02. Règlement budgétaire et
           financier, 01. CCTP, PV et cahier du 27 mars, conventions 12–50. Deux
