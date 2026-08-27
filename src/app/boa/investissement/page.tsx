@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionNav } from "@/components/section-nav";
 import { SourceCite } from "@/components/source-cite";
 import { boaCa2025, villeCa2025 } from "@/data/figures";
@@ -18,6 +19,16 @@ export default function BoaInvestissementPage() {
         Le capital de la dette, s’il existe sur ce budget annexe, relève de
         l’investissement. Les intérêts relèvent du fonctionnement. Les annexes
         de la dette de la maquette CA 2025 BOA sont portées « sans objet ».
+      </p>
+      <p className="mt-4 text-sm text-ink/80">
+        Explorateur :{" "}
+        <Link
+          href="/explorer?entity=boa&section=investissement"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          investissement BOA
+        </Link>
+        .
       </p>
       <div className="mt-8 overflow-x-auto rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
         <table className="w-full text-sm">

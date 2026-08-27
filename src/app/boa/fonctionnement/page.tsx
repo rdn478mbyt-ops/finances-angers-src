@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionNav } from "@/components/section-nav";
 import { SourceCite } from "@/components/source-cite";
 import { boaCa2025, villeAffectation2025 } from "@/data/figures";
@@ -21,6 +22,23 @@ export default function BoaFonctionnementPage() {
         Boucle optique angevine, budget annexe (instruction M4, DOB 2026). Les
         soldes d’affectation restent dans DEL-2026-165. Recettes, dépenses et
         épargne brute : 04. Maquette compte administratif 2025 — BOA, p. 7.
+      </p>
+      <p className="mt-4 text-sm text-ink/80">
+        Explorateur BOA :{" "}
+        <Link
+          href="/explorer?entity=boa&section=fonctionnement&flow=depense"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          dépenses d’exploitation
+        </Link>
+        ,{" "}
+        <Link
+          href="/explorer?entity=boa&section=fonctionnement&flow=depense&chapitre=012"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          chapitre 012 personnel
+        </Link>
+        .
       </p>
       <div className="mt-8 overflow-x-auto rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
         <table className="w-full text-sm">
