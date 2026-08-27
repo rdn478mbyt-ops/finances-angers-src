@@ -150,77 +150,59 @@ export function ExplorerApp() {
   };
   const aplat = query.section === "fonctionnement" ? "bg-vert-1" : "bg-violet";
 
+  const searchBox = (
+    <div className="mt-8">
+      <label htmlFor="recherche-explorateur" className="font-heading text-lg font-semibold">
+        Recherche
+      </label>
+      <p className="mt-1 text-sm text-ink/80">
+        Libellé ou n° de compte. L’entrée reste chapitre → compte → ligne.
+      </p>
+      <input
+        id="recherche-explorateur"
+        value={qLocal}
+        onChange={(e) => setQLocal(e.target.value)}
+        placeholder="011, fiscalité, 6042, personnel…"
+        className="mt-3 h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none ring-vert-1 focus:ring-2"
+      />
+    </div>
+  );
+
   return (
     <div>
-      <label className="mt-8 flex items-center gap-2 text-sm text-ink/80">
-        <input
-          type="checkbox"
-          checked={query.ordre}
-          onChange={(e) => replaceQuery({ ordre: e.target.checked })}
-          className="size-4 accent-rouge"
-        />
-        Y compris opérations d’ordre (021, 023, 040, 041, 042, 001, 002)
-      </label>
-
-      <div className="mt-5">
-        <label htmlFor="recherche-explorateur" className="font-heading text-lg font-semibold">
-          Recherche
-        </label>
-        <p className="mt-1 text-sm text-ink/80">
-          Libellé ou n° de compte. L’entrée reste chapitre → compte → ligne.
-        </p>
-        <input
-          id="recherche-explorateur"
-          value={qLocal}
-          onChange={(e) => setQLocal(e.target.value)}
-          placeholder="011, fiscalité, 6042, personnel…"
-          className="mt-3 h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none ring-vert-1 focus:ring-2"
-        />
-      </div>
+      <FilterBar query={query} replaceQuery={replaceQuery} />
 
       {load.status === "loading" ? (
-        <>
-          <FilterBar query={query} replaceQuery={replaceQuery} />
-          <p className="mt-6 text-sm text-ink/70">
-            Chargement de l’index (compte de gestion + maquette CA)…
-          </p>
-        </>
+        <p className="mt-4 text-sm text-ink/70">
+          Chargement de l’index (compte de gestion + maquette CA)…
+        </p>
       ) : null}
 
       {load.status === "missing" ? (
-        <>
-          <FilterBar query={query} replaceQuery={replaceQuery} />
-          <p className="mt-6 rounded-md bg-jaune/40 p-4 text-sm text-ink">
-            Index de l’explorateur absent de cet hébergement. Les PDF du fonds
-            restent sur chaque fiche. Aucun chiffre n’est inventé.
-          </p>
-        </>
+        <p className="mt-4 rounded-md bg-jaune/40 p-4 text-sm text-ink">
+          Index de l’explorateur absent de cet hébergement. Les PDF du fonds
+          restent sur chaque fiche. Aucun chiffre n’est inventé.
+        </p>
       ) : null}
 
       {load.status === "ready" ? (
         <>
-          <p className="mt-6 text-sm text-ink/80">
-            Nomenclature de la pièce :{" "}
-            <strong>{nomenclatureFor(load.data, query.entity).cg}</strong>
-            {" · "}
-            {nomenclatureFor(load.data, query.entity).maquette}. Le bandeau du
-            site (passage M57 au prochain budget) n’est pas une maquette
-            inventée pour ce CA.
-          </p>
-          <p className="mt-2 text-sm text-ink/80">
+          <p className="mt-3 font-heading text-base font-semibold text-ink">
             {chapters.length} chapitre{chapters.length > 1 ? "s" : ""} ·{" "}
             {names.entity} · {names.section} · {names.flow}
-            {qLocal.trim() ? ` · « ${qLocal.trim()} »` : ""} · réalisé{" "}
-            <span className="font-heading font-semibold tabular-nums">
+            {qLocal.trim() ? ` · « ${qLocal.trim()} »` : ""} ·{" "}
+            <span className="tabular-nums">
               {formatBudgetAmount(realizedSum, query.entity === "boa")}
             </span>
-            .
+          </p>
+          <p className="mt-0.5 text-xs text-ink/70">
+            {nomenclatureFor(load.data, query.entity).cg}
+            {" · "}
+            {nomenclatureFor(load.data, query.entity).maquette}
           </p>
 
-          <FilterBar query={query} replaceQuery={replaceQuery} />
-
           {chapters.length === 0 ? (
-            <p className="mt-6 rounded-md border bg-white p-4 text-sm text-ink/80">
+            <p className="mt-3 rounded-md border bg-white p-4 text-sm text-ink/80">
               Aucun chapitre ni compte pour {names.entity} · {names.section} ·{" "}
               {names.flow}
               {qLocal.trim() ? ` et « ${qLocal.trim()} »` : ""}. Changez le
@@ -229,7 +211,7 @@ export function ExplorerApp() {
               masquées par défaut.
             </p>
           ) : (
-            <ul className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
+            <ul className="mt-3 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
               {chapters.map((chapter) => {
                 const open = query.chapitre === chapter.code;
                 return (
@@ -248,7 +230,7 @@ export function ExplorerApp() {
                             compte: "",
                           })
                         }
-                        className="flex min-w-0 flex-1 items-start gap-3 px-4 py-3 text-left hover:bg-muted/40"
+                        className="flex min-w-0 flex-1 items-start gap-3 px-4 py-2.5 text-left hover:bg-muted/40"
                       >
                         <span className="mt-1 text-ink/50" aria-hidden>
                           {open ? (
@@ -292,7 +274,7 @@ export function ExplorerApp() {
                         </span>
                       </button>
                     </div>
-                    <p className="px-4 pb-3 pl-[3.25rem] text-xs">
+                    <p className="px-4 pb-2 pl-[3.25rem] text-xs">
                       <SourceLink source={chapter.source} />
                     </p>
                     {open ? (
@@ -314,6 +296,17 @@ export function ExplorerApp() {
               })}
             </ul>
           )}
+
+          <label className="mt-6 flex items-center gap-2 text-sm text-ink/80">
+            <input
+              type="checkbox"
+              checked={query.ordre}
+              onChange={(e) => replaceQuery({ ordre: e.target.checked })}
+              className="size-4 accent-rouge"
+            />
+            Y compris opérations d’ordre (021, 023, 040, 041, 042, 001, 002)
+          </label>
+          {searchBox}
         </>
       ) : null}
     </div>
@@ -469,12 +462,8 @@ function FilterBar({
   replaceQuery: (patch: Partial<QueryState>) => void;
 }) {
   return (
-    <div className="mt-6 rounded-xl border bg-white p-4 shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
-      <p className="font-heading text-sm font-semibold text-ink">Filtres</p>
-      <p className="mt-1 text-xs text-ink/70">
-        Collectivité, section et sens — visibles ici, pas seulement dans l’URL.
-      </p>
-      <div className="mt-3 flex flex-wrap items-end gap-x-8 gap-y-3">
+    <div className="mt-4 rounded-xl border bg-white px-4 py-3 shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
+      <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
         <Segment
           ariaLabel="Collectivité"
           value={query.entity}
@@ -519,8 +508,8 @@ function Segment<T extends string>({
   ariaLabel: string;
 }) {
   return (
-    <div role="group" aria-label={ariaLabel} className="min-w-[12rem]">
-      <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-ink/60">
+    <div role="group" aria-label={ariaLabel} className="min-w-0">
+      <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.16em] text-ink/60">
         {ariaLabel}
       </p>
       <div className="flex flex-wrap gap-1.5">
