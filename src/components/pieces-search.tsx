@@ -71,7 +71,9 @@ export function PiecesSearch() {
         if (page.text.toLowerCase().includes(query.toLowerCase())) {
           out.push({
             file: doc.file,
-            href: piece ? `/pieces/${piece.id}` : doc.href,
+            href: piece
+              ? `/pieces/${piece.id}?page=${page.page}`
+              : `${doc.href}#page=${page.page}`,
             title: piece?.title ?? doc.file,
             page: page.page,
             snippet: snippetAround(page.text, query),
