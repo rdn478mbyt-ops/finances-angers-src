@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionNav } from "@/components/section-nav";
 import { SourceCite } from "@/components/source-cite";
 import { investissementOperations2025, villeCa2025 } from "@/data/figures";
@@ -24,6 +25,30 @@ export default function VilleInvestissementPage() {
         {formatMillions(villeCa2025.depensesInvestissementHorsDette.euros!)}. Le
         remboursement du capital ({formatMillions(villeCa2025.amortissementCapital.euros!)})
         reste une dépense d’investissement.
+      </p>
+      <p className="mt-4 text-sm text-ink/80">
+        Explorateur :{" "}
+        <Link
+          href="/explorer?entity=ville&section=investissement&flow=depense"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          dépenses d’investissement
+        </Link>
+        ,{" "}
+        <Link
+          href="/explorer?entity=ville&section=investissement&flow=depense&chapitre=21"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          chapitre 21
+        </Link>
+        ,{" "}
+        <Link
+          href="/explorer?entity=ville&section=investissement&flow=depense&chapitre=16"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          chapitre 16 (emprunts)
+        </Link>
+        .
       </p>
 
       <div className="mt-8">
