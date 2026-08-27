@@ -32,8 +32,14 @@ export default function HomePage() {
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
-          href="/pieces/3a04-maquette-ca-ville"
+          href="/explorer?entity=ville&section=fonctionnement"
           className="rounded-full bg-rouge px-4 py-2 text-sm font-medium text-white shadow-[0_1px_6px_rgba(232,66,80,0.35)] hover:bg-rouge/90"
+        >
+          Explorateur budgétaire
+        </Link>
+        <Link
+          href="/pieces/3a04-maquette-ca-ville"
+          className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium hover:border-rose"
         >
           Ouvrir le CA 2025
         </Link>
@@ -57,13 +63,13 @@ export default function HomePage() {
           <span className="text-vert-1">.</span>
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-ink/80">
-          Budget principal, CA 2025. Aplats Vert 1 / Violet. Clic = détail du compte.
+          Clic = explorateur (chapitre → compte), sourcé du CG et de la maquette.
         </p>
         <div className="mt-5">
           <FaceAFace
             left={{
               title: "Ville · fonctionnement",
-              href: "/ville/fonctionnement",
+              href: "/explorer?entity=ville&section=fonctionnement",
               rows: [
                 { label: "Recettes", value: formatMillions(villeCa2025.recettesFonctionnement.euros!), source: villeCa2025.recettesFonctionnement.source },
                 { label: "Dépenses (hors frais)", value: formatMillions(villeCa2025.depensesFonctionnementHorsFrais.euros!), source: villeCa2025.depensesFonctionnementHorsFrais.source },
@@ -73,7 +79,7 @@ export default function HomePage() {
             }}
             right={{
               title: "Ville · investissement",
-              href: "/ville/investissement",
+              href: "/explorer?entity=ville&section=investissement",
               rows: [
                 { label: "Dépenses hors dette", value: formatMillions(villeCa2025.depensesInvestissementHorsDette.euros!), source: villeCa2025.depensesInvestissementHorsDette.source },
                 { label: "Capital remboursé", value: formatMillions(villeCa2025.amortissementCapital.euros!), source: villeCa2025.amortissementCapital.source },
@@ -97,7 +103,12 @@ export default function HomePage() {
           {fhesrAujourdhui.lead} Seuils : épargne brute bon ~15 %, alerte &lt; 8 %,
           plus d’autofinancement &lt; 5 %, possible sous-investissement &gt; 20 %.
           Masse salariale : 50–60 %. Désendettement : 12 ans. Capital = investissement,
-          intérêts = fonctionnement.
+          intérêts = fonctionnement. Le détail par chapitre et compte n’est pas
+          dans ces agrégats :{" "}
+          <Link href="/explorer" className="underline decoration-rose/40 hover:text-rouge">
+            explorateur
+          </Link>{" "}
+          (compte de gestion + maquette).
         </p>
         <h3 className="mt-8 font-heading text-xl font-semibold">Budget principal (Ville)</h3>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -151,8 +162,8 @@ export default function HomePage() {
             épargne brute {formatEuros(boaCa2025.epargneBrute.euros!, true)}{" "}
             <SourceCite source={boaCa2025.epargneBrute.source} />.
           </p>
-          <Link href="/boa/fonctionnement" className="mt-4 inline-block text-sm text-ink underline decoration-rose/40 hover:text-rouge">
-            Fiche BOA →
+          <Link href="/explorer?entity=boa&section=fonctionnement" className="mt-4 inline-block text-sm text-ink underline decoration-rose/40 hover:text-rouge">
+            Explorateur BOA →
           </Link>
         </article>
         <article className="rounded-xl border bg-white p-5 shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
