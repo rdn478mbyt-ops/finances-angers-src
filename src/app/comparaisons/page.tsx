@@ -25,7 +25,7 @@ export default function ComparaisonsPage() {
         <FaceAFace
           left={{
             title: "Ville · fonctionnement",
-            href: "/ville/fonctionnement",
+            href: "/explorer?entity=ville&section=fonctionnement",
             rows: [
               { label: "Recettes", value: formatMillions(villeCa2025.recettesFonctionnement.euros!), source: villeCa2025.recettesFonctionnement.source },
               { label: "Dépenses (hors frais)", value: formatMillions(villeCa2025.depensesFonctionnementHorsFrais.euros!), source: villeCa2025.depensesFonctionnementHorsFrais.source },
@@ -35,7 +35,7 @@ export default function ComparaisonsPage() {
           }}
           right={{
             title: "Ville · investissement",
-            href: "/ville/investissement",
+            href: "/explorer?entity=ville&section=investissement",
             rows: [
               { label: "Dépenses hors dette", value: formatMillions(villeCa2025.depensesInvestissementHorsDette.euros!), source: villeCa2025.depensesInvestissementHorsDette.source },
               { label: "Capital remboursé", value: formatMillions(villeCa2025.amortissementCapital.euros!), source: villeCa2025.amortissementCapital.source },
