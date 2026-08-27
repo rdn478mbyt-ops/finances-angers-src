@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { allPieces, pieceById } from "@/data/documents";
+import { PdfPageViewer } from "@/components/pdf-page-viewer";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -37,8 +38,6 @@ export default async function PiecePage({ params, searchParams }: Props) {
   const piece = pieceById(slug);
   if (!piece) notFound();
   const readable = rbfLabel(piece.file);
-  const iframeSrc =
-    piece.href && page ? `${piece.href}#page=${page}` : piece.href;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -75,12 +74,10 @@ export default async function PiecePage({ params, searchParams }: Props) {
           </p>
           {page ? (
             <p className="mt-3 text-sm text-ink/80">
-              Ouverture à la page {page} (ancre PDF <code className="font-mono text-xs">#page={page}</code>).
+              Ouverture à la page {page} du PDF (page réellement rendue, pas le haut du fichier).
             </p>
           ) : null}
-          <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
-            <iframe title={piece.title} src={iframeSrc} className="h-[80vh] w-full" />
-          </div>
+          <PdfPageViewer href={piece.href} page={page} title={piece.title} />
         </>
       ) : piece.externalUrl ? (
         <p className="mt-6">

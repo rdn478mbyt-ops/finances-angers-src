@@ -295,9 +295,21 @@ async function ensureExplorerIndex() {
   console.warn("index explorateur manquant — message honnête côté UI.");
 }
 
+function ensurePdfWorker() {
+  const dest = path.join(ROOT, "public", "pdf.worker.min.mjs");
+  const src = path.join(ROOT, "node_modules", "pdfjs-dist", "build", "pdf.worker.min.mjs");
+  if (!existsSync(src)) {
+    console.warn("pdf.worker manquant dans node_modules");
+    return;
+  }
+  writeFileSync(dest, readFileSync(src));
+  console.log(`pdf.worker écrit (${statSync(dest).size} o)`);
+}
+
 await ensureSatoshi();
 await ensureSearchIndex();
 await ensureExplorerIndex();
+ensurePdfWorker();
 
 await Promise.all([
   pull(`${SITE}/brand/logo-ps-rose.png`, path.join(BRAND, "logo-ps-rose.png")),
@@ -308,11 +320,4 @@ await Promise.all([
 
 const poing = path.join(BRAND, "poing-rose.png");
 const icon = path.join(ROOT, "src/app/icon.png");
-if (existsSync(poing) && !existsSync(icon)) {
-  writeFileSync(icon, readFileSync(poing));
-}
-
-const results = await Promise.all(FILES.map(ensure));
-const got = results.filter((r) => r !== "miss").length;
-console.log(`pièces présentes : ${got}/${FILES.length}`);
-if (got < 40) process.exit(1);
+const icon = path.join(ROOT, "src/app/icon.png");

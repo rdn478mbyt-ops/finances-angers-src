@@ -152,37 +152,7 @@ export function ExplorerApp() {
 
   return (
     <div>
-      <div className="flex flex-col gap-3">
-        <Segment
-          ariaLabel="Entité"
-          value={query.entity}
-          onChange={(entity) => replaceQuery({ entity })}
-          options={[
-            { value: "ville", label: "Ville" },
-            { value: "boa", label: "BOA" },
-          ]}
-        />
-        <Segment
-          ariaLabel="Section"
-          value={query.section}
-          onChange={(section) => replaceQuery({ section })}
-          options={[
-            { value: "fonctionnement", label: "Fonctionnement" },
-            { value: "investissement", label: "Investissement" },
-          ]}
-        />
-        <Segment
-          ariaLabel="Sens"
-          value={query.flow}
-          onChange={(flow) => replaceQuery({ flow })}
-          options={[
-            { value: "depense", label: "Dépenses" },
-            { value: "recette", label: "Recettes" },
-          ]}
-        />
-      </div>
-
-      <label className="mt-5 flex items-center gap-2 text-sm text-ink/80">
+      <label className="mt-8 flex items-center gap-2 text-sm text-ink/80">
         <input
           type="checkbox"
           checked={query.ordre}
@@ -209,16 +179,22 @@ export function ExplorerApp() {
       </div>
 
       {load.status === "loading" ? (
-        <p className="mt-6 text-sm text-ink/70">
-          Chargement de l’index (compte de gestion + maquette CA)…
-        </p>
+        <>
+          <FilterBar query={query} replaceQuery={replaceQuery} />
+          <p className="mt-6 text-sm text-ink/70">
+            Chargement de l’index (compte de gestion + maquette CA)…
+          </p>
+        </>
       ) : null}
 
       {load.status === "missing" ? (
-        <p className="mt-6 rounded-md bg-jaune/40 p-4 text-sm text-ink">
-          Index de l’explorateur absent de cet hébergement. Les PDF du fonds
-          restent sur chaque fiche. Aucun chiffre n’est inventé.
-        </p>
+        <>
+          <FilterBar query={query} replaceQuery={replaceQuery} />
+          <p className="mt-6 rounded-md bg-jaune/40 p-4 text-sm text-ink">
+            Index de l’explorateur absent de cet hébergement. Les PDF du fonds
+            restent sur chaque fiche. Aucun chiffre n’est inventé.
+          </p>
+        </>
       ) : null}
 
       {load.status === "ready" ? (
@@ -241,13 +217,16 @@ export function ExplorerApp() {
             .
           </p>
 
+          <FilterBar query={query} replaceQuery={replaceQuery} />
+
           {chapters.length === 0 ? (
             <p className="mt-6 rounded-md border bg-white p-4 text-sm text-ink/80">
               Aucun chapitre ni compte pour {names.entity} · {names.section} ·{" "}
               {names.flow}
               {qLocal.trim() ? ` et « ${qLocal.trim()} »` : ""}. Changez le
-              filtre (recettes / dépenses) ou videz la recherche. Les
-              opérations d’ordre sont masquées par défaut.
+              filtre (Ville / BOA, fonctionnement / investissement, recettes /
+              dépenses) ou videz la recherche. Les opérations d’ordre sont
+              masquées par défaut.
             </p>
           ) : (
             <ul className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
@@ -482,6 +461,52 @@ function SourceLink({ source }: { source: ExplorerSource }) {
   );
 }
 
+function FilterBar({
+  query,
+  replaceQuery,
+}: {
+  query: QueryState;
+  replaceQuery: (patch: Partial<QueryState>) => void;
+}) {
+  return (
+    <div className="mt-6 rounded-xl border bg-white p-4 shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
+      <p className="font-heading text-sm font-semibold text-ink">Filtres</p>
+      <p className="mt-1 text-xs text-ink/70">
+        Collectivité, section et sens — visibles ici, pas seulement dans l’URL.
+      </p>
+      <div className="mt-3 flex flex-wrap items-end gap-x-8 gap-y-3">
+        <Segment
+          ariaLabel="Collectivité"
+          value={query.entity}
+          onChange={(entity) => replaceQuery({ entity })}
+          options={[
+            { value: "ville", label: "Ville" },
+            { value: "boa", label: "BOA" },
+          ]}
+        />
+        <Segment
+          ariaLabel="Section"
+          value={query.section}
+          onChange={(section) => replaceQuery({ section })}
+          options={[
+            { value: "fonctionnement", label: "Fonctionnement" },
+            { value: "investissement", label: "Investissement" },
+          ]}
+        />
+        <Segment
+          ariaLabel="Sens"
+          value={query.flow}
+          onChange={(flow) => replaceQuery({ flow })}
+          options={[
+            { value: "depense", label: "Dépenses" },
+            { value: "recette", label: "Recettes" },
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
+
 function Segment<T extends string>({
   value,
   onChange,
@@ -494,23 +519,28 @@ function Segment<T extends string>({
   ariaLabel: string;
 }) {
   return (
-    <div role="group" aria-label={ariaLabel} className="flex flex-wrap gap-1.5">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            "rounded-full border px-3 py-1 text-sm shadow-[0_1px_4px_rgba(15,23,42,0.04)]",
-            value === option.value
-              ? "border-rouge bg-rose/10 font-medium text-rouge"
-              : "border-line bg-white text-ink/80 hover:border-rose",
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
+    <div role="group" aria-label={ariaLabel} className="min-w-[12rem]">
+      <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-ink/60">
+        {ariaLabel}
+      </p>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={value === option.value}
+            onClick={() => onChange(option.value)}
+            className={cn(
+              "rounded-full border px-3.5 py-1.5 text-sm shadow-[0_1px_4px_rgba(15,23,42,0.04)]",
+              value === option.value
+                ? "border-rouge bg-rose/10 font-medium text-rouge"
+                : "border-line bg-white text-ink/80 hover:border-rose",
+            )}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
