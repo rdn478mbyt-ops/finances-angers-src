@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allPieces, pieceById } from "@/data/documents";
+import { allPieces, FONCIER_RELEASE_ASSETS, pieceById } from "@/data/documents";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -44,9 +44,13 @@ export default async function PiecePage({ params }: Props) {
 
       {piece.href ? (
         <>
-          <p className="mt-5">
+          <p className="mt-5 flex flex-wrap gap-2">
             <a
-              href={piece.href}
+              href={
+                piece.status === "offbundle" && piece.file && FONCIER_RELEASE_ASSETS[piece.file]
+                  ? FONCIER_RELEASE_ASSETS[piece.file].githubUrl
+                  : piece.href
+              }
               download={piece.status === "offbundle" ? undefined : piece.file}
               target={piece.status === "offbundle" ? "_blank" : undefined}
               rel={piece.status === "offbundle" ? "noreferrer" : undefined}
@@ -57,10 +61,22 @@ export default async function PiecePage({ params }: Props) {
                 : "Télécharger le PDF"}
             </a>
           </p>
-          {piece.status === "offbundle" ? (
+          {piece.status === "offbundle" && piece.file && FONCIER_RELEASE_ASSETS[piece.file] ? (
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/80">
-              Lien GitHub Release (tag fonciers-33-34), pas Vercel Hobby, pas
-              angers.fr.
+              Téléchargement via GitHub Release (tag fonciers-33-34), pas Vercel
+              Hobby, pas angers.fr. Lien de l’asset :{" "}
+              <a
+                href={FONCIER_RELEASE_ASSETS[piece.file].githubUrl}
+                className="break-all underline decoration-rose/40 underline-offset-2 hover:text-rouge"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {FONCIER_RELEASE_ASSETS[piece.file].githubUrl}
+              </a>
+            </p>
+          ) : piece.status === "offbundle" ? (
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/80">
+              Téléchargement via GitHub Release, pas Vercel Hobby, pas angers.fr.
             </p>
           ) : (
             <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">

@@ -1,86 +1,74 @@
-import { existsSync, createReadStream, statSync } from "node:fs";
-import path from "node:path";
-import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
+import { FONCIER_RELEASE_ASSETS } from "@/data/documents";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
 
-const ALLOWED: Record<string, string> = {
-  "33._Promesse.pdf": "pieces/33._Promesse.pdf",
-  "34._Promesse_dachat.pdf": "pieces/34._Promesse_dachat.pdf",
-};
-
-const REPO = "rdn478mbyt-ops/finances-angers-pieces";
-
-function localPaths(file: string) {
-  const extra = process.env.FINANCES_PDF_DIR;
-  return [
-    path.join(process.cwd(), "public", "pieces", file),
-    path.join("/workspace/finances-pdfs", file),
-    extra ? path.join(extra, file) : "",
-  ].filter(Boolean);
-}
-
-async function githubRedirect(repoPath: string) {
-  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-  if (!token) return null;
-  const api = `https://api.github.com/repos/${REPO}/contents/${repoPath}`;
-  const res = await fetch(api, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "User-Agent": "finances-angers",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
-  const data = (await res.json()) as { download_url?: string };
-  return data.download_url ?? null;
-}
-
+/**
+ * Relais 33/34 : 302 vers l’asset GitHub Release.
+ * Jamais de stream PDF (Hobby 503), jamais angers.fr.
+ */
 export async function GET(
   _request: Request,
   context: { params: Promise<{ file: string }> },
 ) {
   const { file } = await context.params;
-  const repoPath = ALLOWED[file];
-  if (!repoPath) {
+  const asset = FONCIER_RELEASE_ASSETS[file];
+  if (!asset) {
     return NextResponse.json({ error: "Pièce inconnue." }, { status: 404 });
   }
 
-  for (const disk of localPaths(file)) {
-    if (!existsSync(disk)) continue;
-    const stat = statSync(disk);
-    const stream = Readable.toWeb(createReadStream(disk));
-    return new NextResponse(stream as BodyInit, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Length": String(stat.size),
-        "Content-Disposition": `attachment; filename="${file}"`,
-        "Cache-Control": "private, max-age=3600",
-      },
-    });
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  if (token) {
+    const signed = await githubAssetLocation(asset.assetId, token);
+    if (signed) {
+      return NextResponse.redirect(signed, 302);
+    }
   }
 
-  const signed = await githubRedirect(repoPath);
-  if (signed) {
-    return NextResponse.redirect(signed, 302);
-  }
-
-  const fiche =
-    file.startsWith("33.") ? "/pieces/33-promesse" : "/pieces/34-promesse-dachat";
-  const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${file}</title></head>
-<body style="font-family:ui-sans-serif,system-ui,sans-serif;max-width:40rem;margin:3rem auto;padding:0 1rem;line-height:1.45;color:#16141a">
-<h1 style="font-size:1.4rem">Fichier hors bundle Hobby</h1>
-<p>Ce n’est pas une pièce absente. <code>${file}</code> pèse trop pour git / l’archive Vercel Hobby (100 Mo) une fois les 46 autres PDF déjà en ligne.</p>
-<p>L’élu l’obtient dès que le PDF est poussé dans le miroir privé <code>rdn478mbyt-ops/finances-angers-pieces</code> (variable <code>GITHUB_TOKEN</code> sur le projet finances-angers) ou déposé en local. Pas un lien angers.fr.</p>
-<p><a href="${fiche}">Retour à la fiche</a></p>
-</body></html>`;
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Téléchargement via GitHub Release</title>
+  <style>
+    body { font: 16px/1.45 system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1.25rem; color: #16141a; }
+    a { color: #e84250; }
+    code { font-size: 0.85em; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h1>Téléchargement via GitHub Release</h1>
+  <p>${file} (${asset.sizeLabel}) n’est pas servi par Vercel Hobby. Fichier réel, pas un lien angers.fr.</p>
+  <p><a href="${asset.githubUrl}">${asset.githubUrl}</a></p>
+  <p>Release <code>fonciers-33-34</code> — dépôt <code>rdn478mbyt-ops/finances-angers-pieces</code>.</p>
+</body>
+</html>`;
 
   return new NextResponse(html, {
-    status: 503,
-    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
   });
+}
+
+async function githubAssetLocation(assetId: number, token: string) {
+  const res = await fetch(
+    `https://api.github.com/repos/rdn478mbyt-ops/finances-angers-pieces/releases/assets/${assetId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/octet-stream",
+        "User-Agent": "finances-angers",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      redirect: "manual",
+      cache: "no-store",
+    },
+  );
+  const location = res.headers.get("location");
+  if (res.status >= 300 && res.status < 400 && location) return location;
+  return null;
 }

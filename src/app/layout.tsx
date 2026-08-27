@@ -56,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SiteHeader />
             <M57Banner />
           </div>
-          <main id="contenu" className="flex-1 scroll-mt-[11rem] pb-8">
+          <main id="contenu" tabIndex={-1} className="flex-1 scroll-mt-[11rem] pb-8">
             {children}
           </main>
           <RatioBanner />
