@@ -39,8 +39,8 @@ export default function MethodePage() {
           Fonds des 46 PDF : 04. Maquette CA 2025 (Ville + BOA), 06. Maquette DM n°1
           (Ville + BOA), 03. Comptes de gestion, 02. Règlement budgétaire et
           financier, 01. CCTP, PV et cahier du 27 mars, conventions 12–50. Deux
-          pièces foncières (33. Promesse, 34. Promesse d’achat) se téléchargent
-          depuis leur fiche (hors git, 52 Mo et 43 Mo).
+          pièces foncières (33. Promesse, 34. Promesse d’achat) sont hors bundle
+          · dépôt privé (trop lourdes pour Hobby).
         </li>
         <li>Grille FNESR, atelier du 26 août 2026.</li>
       </ul>

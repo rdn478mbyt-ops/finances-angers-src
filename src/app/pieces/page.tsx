@@ -13,7 +13,7 @@ const statusLabel: Record<DocumentStatus, string> = {
   external: "Lien officiel",
   integrating: "En cours d’intégration",
   missing: "Document manquant",
-  offbundle: "Hors bundle",
+  offbundle: "Hors bundle · dépôt privé",
 };
 
 export default function PiecesPage() {
@@ -34,8 +34,8 @@ export default function PiecesPage() {
         Pièces du conseil nommées par leur fichier réel (01. CCTP, 04. Maquette
         CA 2025, 06. Maquette DM n°1, 02. Règlement budgétaire et financier…).{" "}
         {NOMENCLATURE_ACTES} Les 46 PDF du fonds se téléchargent ici. Les deux
-        pièces foncières volumineuses (33. Promesse, 34. Promesse d’achat) ont
-        un bouton de téléchargement sur leur fiche.
+        pièces foncières volumineuses (33. Promesse, 34. Promesse d’achat) sont
+        hors bundle · dépôt privé.
       </p>
       <PiecesSearch />
       {groups.map((group) => {
@@ -76,15 +76,13 @@ export default function PiecesPage() {
                     <Link href={`/pieces/${doc.id}`} className="text-sm text-ink underline decoration-rose/40 hover:text-rouge">
                       Fiche
                     </Link>
-                    {doc.href ? (
+                    {doc.href && doc.status !== "offbundle" ? (
                       <a
                         href={doc.href}
-                        download={doc.status === "offbundle" ? undefined : true}
-                        target={doc.status === "offbundle" ? "_blank" : undefined}
-                        rel={doc.status === "offbundle" ? "noreferrer" : undefined}
+                        download
                         className="text-sm text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge"
                       >
-                        {doc.status === "offbundle" ? "GitHub Release" : "Télécharger"}
+                        Télécharger
                       </a>
                     ) : null}
                     {doc.externalUrl ? (

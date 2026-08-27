@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allPieces, FONCIER_RELEASE_ASSETS, pieceById } from "@/data/documents";
+import { allPieces, pieceById } from "@/data/documents";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -42,47 +42,26 @@ export default async function PiecePage({ params }: Props) {
       {piece.nomenclature ? <p className="mt-2 text-sm text-ink/80">{piece.nomenclature}</p> : null}
       {piece.note ? <p className="mt-3 text-sm text-ink/80">{piece.note}</p> : null}
 
-      {piece.href ? (
+      {piece.status === "offbundle" ? (
+        <p className="mt-5 max-w-2xl rounded-md border border-violet/30 bg-white p-4 text-sm leading-relaxed text-ink">
+          <span className="font-medium">Hors bundle · dépôt privé.</span> Fichier
+          trop lourd pour l’archive Vercel Hobby. Disponible dans la Release
+          privée pour l’équipe. Pas de téléchargement public.
+        </p>
+      ) : piece.href ? (
         <>
-          <p className="mt-5 flex flex-wrap gap-2">
+          <p className="mt-5">
             <a
-              href={
-                piece.status === "offbundle" && piece.file && FONCIER_RELEASE_ASSETS[piece.file]
-                  ? FONCIER_RELEASE_ASSETS[piece.file].githubUrl
-                  : piece.href
-              }
-              download={piece.status === "offbundle" ? undefined : piece.file}
-              target={piece.status === "offbundle" ? "_blank" : undefined}
-              rel={piece.status === "offbundle" ? "noreferrer" : undefined}
+              href={piece.href}
+              download={piece.file}
               className="inline-flex rounded-full bg-rouge px-5 py-2.5 text-sm font-medium text-white hover:bg-rouge/90"
             >
-              {piece.status === "offbundle"
-                ? `Télécharger le PDF (${piece.file?.startsWith("33.") ? "52 Mo" : "43 Mo"})`
-                : "Télécharger le PDF"}
+              Télécharger le PDF
             </a>
           </p>
-          {piece.status === "offbundle" && piece.file && FONCIER_RELEASE_ASSETS[piece.file] ? (
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/80">
-              Téléchargement via GitHub Release (tag fonciers-33-34), pas Vercel
-              Hobby, pas angers.fr. Lien de l’asset :{" "}
-              <a
-                href={FONCIER_RELEASE_ASSETS[piece.file].githubUrl}
-                className="break-all underline decoration-rose/40 underline-offset-2 hover:text-rouge"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {FONCIER_RELEASE_ASSETS[piece.file].githubUrl}
-              </a>
-            </p>
-          ) : piece.status === "offbundle" ? (
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/80">
-              Téléchargement via GitHub Release, pas Vercel Hobby, pas angers.fr.
-            </p>
-          ) : (
-            <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
-              <iframe title={piece.title} src={piece.href} className="h-[80vh] w-full" />
-            </div>
-          )}
+          <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
+            <iframe title={piece.title} src={piece.href} className="h-[80vh] w-full" />
+          </div>
         </>
       ) : piece.externalUrl ? (
         <p className="mt-6">

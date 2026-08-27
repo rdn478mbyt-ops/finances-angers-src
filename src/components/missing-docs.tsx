@@ -22,26 +22,13 @@ export function MissingDocs() {
         {offbundleRequired.map((doc) => (
           <li key={doc.id}>
             <Badge variant="outline" className="mr-2 border-violet/40 text-violet">
-              Hors bundle
+              Hors bundle · dépôt privé
             </Badge>
             <span className="font-medium">{doc.title}</span>
             {doc.note ? <span className="text-ink/80"> — {doc.note}</span> : null}{" "}
             <Link href={`/pieces/${doc.id}`} className="text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge">
               Fiche
             </Link>
-            {doc.href ? (
-              <>
-                {" "}
-                <a
-                  href={doc.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge"
-                >
-                  Télécharger le PDF
-                </a>
-              </>
-            ) : null}
           </li>
         ))}
       </ul>

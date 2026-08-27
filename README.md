@@ -19,11 +19,8 @@ Ouvrir [http://127.0.0.1:43147](http://127.0.0.1:43147).
 - Horizon (virements entre chapitres, plan par politiques publiques) : prochain budget, pas l’état des comptes 2025.
 - Face-à-face fonctionnement | investissement (aplats `#00a870` / `#ba4e8e`), barres empilées Ville vs BOA et CA vs DM1, bandeau bas « chiffre à retenir » **dans le flux** (fin de page, pas `sticky` / pas d’overlay sur les cartes au scroll).
 - Bandeau en tête : seul endroit où le calendrier de nomenclature est annoncé. CA 2025, DM n°1 et conseil du 27 mars 2026 ne sont pas présentés comme maquettes du prochain budget.
-- Fonds documentaire : 46 PDF dans `public/pieces/` (noms de fichiers réels), recherche plein texte sur le **calque texte** (index gzip, 54 pièces / 1 112 pages). Les scans sans texte (PV 27 mars, conventions 29) sont nommés : aucun résultat n’est inventé. Libellé à l’écran pour le RBF : « Règlement budgétaire et financier » (fichier `fnancier` = nom réel de la pièce).
-- Hors git / hors archive Hobby (100 Mo) : `33._Promesse.pdf` (52 Mo) et `34._Promesse_dachat.pdf` (43 Mo). Boutons vers GitHub Release [`fonciers-33-34`](https://github.com/rdn478mbyt-ops/finances-angers-pieces/releases/tag/fonciers-33-34) :
-  [33._Promesse.pdf](https://github.com/rdn478mbyt-ops/finances-angers-pieces/releases/download/fonciers-33-34/33._Promesse.pdf),
-  [34._Promesse_dachat.pdf](https://github.com/rdn478mbyt-ops/finances-angers-pieces/releases/download/fonciers-33-34/34._Promesse_dachat.pdf).
-  Relais optionnel `/api/fonds/…` : 302 vers l’asset si `GITHUB_TOKEN` est défini, sinon page « Téléchargement via GitHub Release » avec le vrai lien.
+- Fonds documentaire : 46 PDF dans `public/pieces/` (noms de fichiers réels), recherche plein texte sur le **calque texte** (index gzip, 54 pièces / 1 112 pages). Les scans sans texte (PV 27 mars, conventions 29) sont nommés : aucun résultat n’est inventé. Libellé à l’écran pour le RBF : « Règlement budgétaire et financier » (fichier `fnancier` = nom réel de la pièce).
+- Hors git / hors archive Hobby (100 Mo) : `33._Promesse.pdf` (52 Mo) et `34._Promesse_dachat.pdf` (43 Mo). Étiquette **Hors bundle · dépôt privé** — pas de bouton de téléchargement public, pas de lien Release anonyme, pas de 503 Hobby, pas de lien angers.fr. Les PDF restent dans le dépôt privé des pièces (Release pour l’équipe).
 
 Chiffres du budget principal : rapport DEL-2026-164 + **04. Maquette compte administratif 2025**. BOA : maquette 04 BOA, p. 7.
 
