@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=86400" },
         ],
       },
+      {
+        source: "/explorer/index.json.gz",
+        headers: [
+          { key: "Content-Type", value: "application/gzip" },
+          { key: "Cache-Control", value: "public, max-age=86400" },
+        ],
+      },
     ];
   },
 };
