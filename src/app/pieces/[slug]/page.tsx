@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { allPieces, pieceById } from "@/data/documents";
 import { PdfPageViewer } from "@/components/pdf-page-viewer";
 
@@ -77,7 +78,13 @@ export default async function PiecePage({ params, searchParams }: Props) {
               Ouverture à la page {page} du PDF (page réellement rendue, pas le haut du fichier).
             </p>
           ) : null}
-          <PdfPageViewer href={piece.href} page={page} title={piece.title} />
+          <Suspense
+            fallback={
+              <p className="mt-6 text-sm text-ink/70">Ouverture du PDF…</p>
+            }
+          >
+            <PdfPageViewer href={piece.href} page={page} title={piece.title} />
+          </Suspense>
         </>
       ) : piece.externalUrl ? (
         <p className="mt-6">

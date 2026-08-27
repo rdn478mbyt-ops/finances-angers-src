@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type Props = {
@@ -9,16 +10,25 @@ type Props = {
   title: string;
 };
 
+function parsePage(value: string | null, fallback: number | null) {
+  const n = Number.parseInt(value || "", 10);
+  if (Number.isFinite(n) && n > 0) return n;
+  if (fallback && fallback > 0) return fallback;
+  return 1;
+}
+
 export function PdfPageViewer({ href, page, title }: Props) {
+  const searchParams = useSearchParams();
+  const requested = parsePage(searchParams.get("page"), page);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [pageCount, setPageCount] = useState<number | null>(null);
-  const [current, setCurrent] = useState(() => (page && page > 0 ? page : 1));
+  const [current, setCurrent] = useState(requested);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
-    if (page && page > 0) setCurrent(page);
-  }, [page]);
+    setCurrent(requested);
+  }, [requested]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -87,8 +97,8 @@ export function PdfPageViewer({ href, page, title }: Props) {
               / <span className="tabular-nums">{pageCount}</span>
             </>
           ) : null}
-          {page && page > 0 && page !== current ? (
-            <span className="ml-2 text-ink/60">(demandée {page})</span>
+          {requested !== current ? (
+            <span className="ml-2 text-ink/60">(demandée {requested})</span>
           ) : null}
         </p>
         <div className="flex items-center gap-1">
