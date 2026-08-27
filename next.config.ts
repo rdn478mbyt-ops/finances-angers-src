@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   images: {
     qualities: [75, 90],
   },
+  async redirects() {
+    return [{ source: "/comptes", destination: "/explorer", permanent: false }];
+  },
   async headers() {
     return [
       {
