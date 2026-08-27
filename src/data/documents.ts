@@ -376,16 +376,33 @@ export const FONCIER_RELEASE_TAG = "fonciers-33-34";
 
 export const FONCIER_RELEASE_BASE = `https://github.com/rdn478mbyt-ops/finances-angers-pieces/releases/download/${FONCIER_RELEASE_TAG}`;
 
+/** IDs d’assets GitHub Release (tag fonciers-33-34) — 302 API, jamais un stream Hobby. */
+export const FONCIER_RELEASE_ASSETS: Record<
+  string,
+  { githubUrl: string; assetId: number; sizeLabel: string }
+> = {
+  "33._Promesse.pdf": {
+    githubUrl: `${FONCIER_RELEASE_BASE}/33._Promesse.pdf`,
+    assetId: 531460074,
+    sizeLabel: "52 Mo",
+  },
+  "34._Promesse_dachat.pdf": {
+    githubUrl: `${FONCIER_RELEASE_BASE}/34._Promesse_dachat.pdf`,
+    assetId: 531460075,
+    sizeLabel: "43 Mo",
+  },
+};
+
 const OFFBUNDLE_HREF: Record<string, string> = {
-  "33._Promesse.pdf": `${FONCIER_RELEASE_BASE}/33._Promesse.pdf`,
-  "34._Promesse_dachat.pdf": `${FONCIER_RELEASE_BASE}/34._Promesse_dachat.pdf`,
+  "33._Promesse.pdf": FONCIER_RELEASE_ASSETS["33._Promesse.pdf"].githubUrl,
+  "34._Promesse_dachat.pdf": FONCIER_RELEASE_ASSETS["34._Promesse_dachat.pdf"].githubUrl,
 };
 
 const OFFBUNDLE: Record<string, string> = {
   "33._Promesse.pdf":
-    "Fichier volumineux (52 Mo) : hors git et hors archive Vercel Hobby. Téléchargement GitHub Release (tag fonciers-33-34), pas un lien angers.fr.",
+    "Fichier volumineux (52 Mo) : hors git et hors archive Vercel Hobby. Téléchargement via GitHub Release (tag fonciers-33-34), pas un lien angers.fr.",
   "34._Promesse_dachat.pdf":
-    "Fichier volumineux (43 Mo) : hors git et hors archive Vercel Hobby. Téléchargement GitHub Release (tag fonciers-33-34), pas un lien angers.fr.",
+    "Fichier volumineux (43 Mo) : hors git et hors archive Vercel Hobby. Téléchargement via GitHub Release (tag fonciers-33-34), pas un lien angers.fr.",
 };
 
 function slugFromFile(file: string) {
