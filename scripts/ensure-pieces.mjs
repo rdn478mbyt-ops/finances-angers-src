@@ -1,156 +1,252 @@
-#!/usr/bin/env node
-import { Buffer } from "node:buffer";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url"
-import { gunzipSync } from "node:zlib";
+import { existsSync, mkdirSync, writeFileSync, statSync, readFileSync, readdirSync } from "node:fs";
+import { gzipSync, gunzipSync } from "node:zlib";
+import path from "node:path";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const PIECES = join(ROOT, "public", "pieces");
-const FONTS = join(ROOT, "public", "fonts");
-const BASE =
-  process.env.FINANCES_PIECES_BASE ??
-  "https://finances-angers-fonds.vercel.app";
-const SEARCH_INDEX_B64 = join(ROOT, "scripts", "search-index.b64");
-const SEARCH_INDEX_GZ = join(ROOT, "public", "search", "index.json.gz");
-const EXPLORER_INDEX_B64 = join(ROOT, "scripts", "explorer-index.b64");
-const EXPLORER_INDEX_GZ = join(ROOT, "public", "explorer", "index.json.gz");
+const ROOT = process.cwd();
+const OUT = path.join(ROOT, "public", "pieces");
+const BRAND = path.join(ROOT, "public", "brand");
+const FONTS = path.join(ROOT, "src", "fonts");
+const SEARCH = path.join(ROOT, "public", "search");
+const EXPLORER = path.join(ROOT, "public", "explorer");
+const INDEX_PARTS_REMOTE =
+  "https://raw.githubusercontent.com/rdn478mbyt-ops/finances-angers-src/main/scripts/search-index";
+const SITE = "https://finances-angers-fonds.vercel.app";
+const MIRROR = `${SITE}/pieces`;
+const ANYBODY =
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/anybody/Anybody%5Bwdth%2Cwght%5D.ttf";
 
 const FILES = [
-  ["01._Rapport_sur_les_orientations_budgetaires_2026.pdf", "01._Rapport_sur_les_orientations_budgetaires_2026.pdf"],
-  ["02._Note_de_synthese_BP_2026.pdf", "02._Note_de_synthese_BP_2026.pdf"],
-  ["03._Deliberation_BP_2026.pdf", "03._Deliberation_BP_2026.pdf"],
-  ["04._Annexe_a_la_deliberation_BP_2026.pdf", "04._Annexe_a_la_deliberation_BP_2026.pdf"],
-  ["05._Rapport_de_presentation_CA_2024.pdf", "05._Rapport_de_presentation_CA_2024.pdf"],
-  ["06._Note_de_synthese_CA_2024.pdf", "06._Note_de_synthese_CA_2024.pdf"],
-  ["07._Annexe_a_la_deliberation_CA_2024.pdf", "07._Annexe_a_la_deliberation_CA_2024.pdf"],
-  ["08._Cadrage_financier_pluriannuel_2026-2029.pdf", "08._Cadrage_financier_pluriannuel_2026-2029.pdf"],
-  ["09._Programme_pluriannuel_dinvestissement_2026-2029.pdf", "09._Programme_pluriannuel_dinvestissement_2026-2029.pdf"],
-  ["10._Plan_de_tresorerie_2026.pdf", "10._Plan_de_tresorerie_2026.pdf"],
-  ["11._Etat_annuel_des_garanties_demprunt_2026.pdf", "11._Etat_annuel_des_garanties_demprunt_2026.pdf"],
-  ["12._Rapport_sur_la_dette_2026.pdf", "12._Rapport_sur_la_dette_2026.pdf"],
-  ["13._Rapport_sur_les_conventions_de_tresorerie.pdf", "13._Rapport_sur_les_conventions_de_tresorerie.pdf"],
-  ["14._Rapport_sur_les_decisions_modificatives_2025.pdf", "14._Rapport_sur_les_decisions_modificatives_2025.pdf"],
-  ["15._Rapport_dorientations_budgetaires_ALM_2026.pdf", "15._Rapport_dorientations_budgetaires_ALM_2026.pdf"],
-  ["16._Budget_annexe_eau_assainissement_2026.pdf", "16._Budget_annexe_eau_assainissement_2026.pdf"],
-  ["17._Budget_annexe_dechets_2026.pdf", "17._Budget_annexe_dechets_2026.pdf"],
-  ["18._Budget_annexe_transports_2026.pdf", "18._Budget_annexe_transports_2026.pdf"],
-  ["19._Budget_annexe_stationnement_2026.pdf", "19._Budget_annexe_stationnement_2026.pdf"],
-  ["20._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_leau.pdf", "20._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_leau.pdf"],
-  ["21._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_lassainissement.pdf", "21._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_lassainissement.pdf"],
-  ["22._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_prevention_et_de_gestion_des_dechets.pdf", "22._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_prevention_et_de_gestion_des_dechets.pdf"],
-  ["23._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_mobilite.pdf", "23._Rapport_annuel_sur_le_prix_et_la_qualite_du_service_public_de_mobilite.pdf"],
-  ["24._Rapport_dactivite_Angers_Loire_Metropole_2024.pdf", "24._Rapport_dactivite_Angers_Loire_Metropole_2024.pdf"],
-  ["25._Rapport_dorientations_strategiques_Angers_Loire_Metropole.pdf", "25._Rapport_dorientations_strategiques_Angers_Loire_Metropole.pdf"],
-  ["26._Pacte_financier_ALM.pdf", "26._Pacte_financier_ALM.pdf"],
-  ["27._Rapport_sur_la_situation_en_matiere_de_developpement_durable.pdf", "27._Rapport_sur_la_situation_en_matiere_de_developpement_durable.pdf"],
-  ["28._Rapport_egalite_femmes-hommes.pdf", "28._Rapport_egalite_femmes-hommes.pdf"],
-  ["29._Bilan_des_emissions_de_gaz_a_effet_de_serre.pdf", "29._Bilan_des_emissions_de_gaz_a_effet_de_serre.pdf"],
-  ["30._Schema_directeur_immobilier.pdf", "30._Schema_directeur_immobilier.pdf"],
-  ["31._Plan_local_urbanisme_intercommunal.pdf", "31._Plan_local_urbanisme_intercommunal.pdf"],
-  ["32._Rapport_sur_les_aides_aux_entreprises.pdf", "32._Rapport_sur_les_aides_aux_entreprises.pdf"],
-  ["33._Etat_de_la_dette_Ville.pdf", "33._Etat_de_la_dette_Ville.pdf"],
-  ["34._Etat_de_la_dette_ALM.pdf", "34._Etat_de_la_dette_ALM.pdf"],
-  ["35._Tableau_des_effectifs.pdf", "35._Tableau_des_effectifs.pdf"],
-  ["36._Rapport_social_unique.pdf", "36._Rapport_social_unique.pdf"],
-  ["37._Compte_administratif_Ville_2024.pdf", "37._Compte_administratif_Ville_2024.pdf"],
-  ["38._Compte_administratif_ALM_2024.pdf", "38._Compte_administratif_ALM_2024.pdf"],
-  ["39._Budget_primitif_Ville_2026.pdf", "39._Budget_primitif_Ville_2026.pdf"],
-  ["40._Budget_primitif_ALM_2026.pdf", "40._Budget_primitif_ALM_2026.pdf"],
-  ["41._Annexe_BP_Ville.pdf", "41._Annexe_BP_Ville.pdf"],
-  ["42._Annexe_BP_ALM.pdf", "42._Annexe_BP_ALM.pdf"],
+  "01._Cahier_des_clauses_techniques_particulieres.pdf",
+  "02._Ordre_du_jour.pdf",
+  "02._Reglement_budgetaire_et_fnancier.pdf",
+  "03._Cahier_des_deliberations.pdf",
+  "03._Compte_de_gestion_BOA.pdf",
+  "03._Compte_de_gestion_Ville.pdf",
+  "04._Maquette_compte_administratif_2025_-_BOA.pdf",
+  "04._Maquette_compte_administratif_2025.pdf",
+  "04._Tableau_de_propositions_de_deports.pdf",
+  "06._Maquette_DM_n1_-_BOA.pdf",
+  "06._Maquette_DM_n1.pdf",
+  "12._Convention.pdf",
+  "13._Convention.pdf",
+  "14._Convention.pdf",
+  "15._Convention.pdf",
+  "16._Convention.pdf",
+  "17._Convention.pdf",
+  "18._Convention.pdf",
+  "19._Convention.pdf",
+  "2026-03-27-cahier-deliberations.pdf",
+  "2026-06-29-liste-deliberations.pdf",
+  "20._Convention.pdf",
+  "22._Budget_previsionnel.pdf",
+  "22._Convention.pdf",
+  "23._Convention.pdf",
+  "24._Fiche_de_presentation.pdf",
+  "25._Repartition.pdf",
+  "29._Avenant_2026.pdf",
+  "29._Convention_2022-2025.pdf",
+  "30._Convention.pdf",
+  "32._Convention.pdf",
+  "33._Avis_de_domaine.pdf",
+  "33._Etat_descriptif.pdf",
+  "33._Extrait_plan_cadastral.pdf",
+  "33._Statuts_ASL.pdf",
+  "34._Estimation_avis_des_domaines.pdf",
+  "35._Portefeuille_Angers.pdf",
+  "35._Portefeuille_Plateforme_Anjou_Portage_foncier.pdf",
+  "36._Repartition_subvention_-_114_rue_de_la_Chalouere.pdf",
+  "36._Repartition_subvention_-_18_rue_Maille.pdf",
+  "36._Repartition_subvention_-_19-21_Boulevard_Carnot.pdf",
+  "37._Liste_des_beneficiaires.pdf",
+  "38._Projet_dacte.pdf",
+  "45._Etat_et_details_des_remises_gracieuses.pdf",
+  "47._Projet_davenant_n2.pdf",
+  "48._Liste_remises_gracieuses.pdf",
+  "50._Liste_des_biens.pdf",
+  "del-2026-162-rbf.pdf",
+  "del-2026-163-compte-gestion-2025.pdf",
+  "del-2026-164-ca-2025.pdf",
+  "del-2026-165-affectation-2025.pdf",
+  "del-2026-166-dm1-2026.pdf",
+  "del-2026-2-dob-2026.pdf",
+  "Proces-verbal_du_conseil_municipal_du_27_mars_2026.pdf",
 ];
 
-const FONTS_FILES = [
-  ["Satoshi-Variable.woff2", "Satoshi-Variable.woff2"],
-  ["Satoshi-VariableItalic.woff2", "Satoshi-VariableItalic.woff2"],
-];
+mkdirSync(OUT, { recursive: true });
+mkdirSync(BRAND, { recursive: true });
+mkdirSync(FONTS, { recursive: true });
+mkdirSync(SEARCH, { recursive: true });
+mkdirSync(EXPLORER, { recursive: true });
 
-async function exists(path) {
-  try {
-    await readFile(path);
-    return true;
-  } catch {
-    return false;
+async function pull(url, dest, min = 500) {
+  if (existsSync(dest) && statSync(dest).size > min) return "ok";
+  const res = await fetch(url);
+  if (!res.ok) {
+    console.warn(`manquant ${url} (${res.status})`);
+    return "miss";
   }
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (buf.length < min) {
+    console.warn(`trop petit ${url}`);
+    return "miss";
+  }
+  writeFileSync(dest, buf);
+  console.log(`récupéré ${path.relative(ROOT, dest)} (${buf.length} o)`);
+  return "got";
 }
 
-async function download(url, dest) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
-  await mkdir(dirname(dest), { recursive: true });
-  await writeFile(dest, Buffer.from(await res.arrayBuffer()));
+async function ensure(file) {
+  return pull(`${MIRROR}/${encodeURIComponent(file)}`, path.join(OUT, file), 1000);
+}
+
+function isWoff2(buf) {
+  return Buffer.isBuffer(buf) && buf.length > 1000 && buf.subarray(0, 4).toString("ascii") === "wOF2";
+}
+
+const SATOSHI_CDN = {
+  "satoshi-400.woff2":
+    "https://cdn.fontshare.com/wf/TTX2Z3BF3P6Y5BQT3IV2VNOK6FL22KUT/7QYRJOI3JIMYHGY6CH7SOIFRQLZOLNJ6/KFIAZD4RUMEZIYV6FQ3T3GP5PDBDB6JY.woff2",
+  "satoshi-500.woff2":
+    "https://cdn.fontshare.com/wf/P2LQKHE6KA6ZP4AAGN72KDWMHH6ZH3TA/ZC32TK2P7FPS5GFTL46EU6KQJA24ZYDB/7AHDUZ4A7LFLVFUIFSARGIWCRQJHISQP.woff2",
+  "satoshi-700.woff2":
+    "https://cdn.fontshare.com/wf/LAFFD4SDUCDVQEXFPDC7C53EQ4ZELWQI/PXCT3G6LO6ICM5I3NTYENYPWJAECAWDD/GHM6WVH6MILNYOOCXHXB5GTSGNTMGXZR.woff2",
+};
+
+async function ensureSatoshi() {
+  const names = ["satoshi-400.woff2", "satoshi-500.woff2", "satoshi-700.woff2"];
+  for (const name of names) {
+    const dest = path.join(FONTS, name);
+    if (existsSync(dest) && isWoff2(readFileSync(dest))) continue;
+
+    const b64Name = name.replace(/\.woff2$/, ".b64");
+    const localB64 = path.join(ROOT, "scripts", b64Name);
+    if (existsSync(localB64)) {
+      const b64 = readFileSync(localB64, "utf8").replace(/[^A-Za-z0-9+/=]/g, "");
+      const buf = Buffer.from(b64, "base64");
+      if (isWoff2(buf)) {
+        writeFileSync(dest, buf);
+        console.log(`écrit ${path.relative(ROOT, dest)} (${buf.length} o)`);
+        continue;
+      }
+    }
+
+    const cdn = SATOSHI_CDN[name];
+    if (cdn) {
+      const fr = await fetch(cdn);
+      if (fr.ok) {
+        const buf = Buffer.from(await fr.arrayBuffer());
+        if (isWoff2(buf)) {
+          writeFileSync(dest, buf);
+          console.log(`fontshare ${path.relative(ROOT, dest)} (${buf.length} o)`);
+          continue;
+        }
+      }
+    }
+
+    console.warn(`satoshi manquant ${name}`);
+  }
 }
 
 async function ensureSearchIndex() {
-  try {
-    const b64 = (await readFile(SEARCH_INDEX_B64, "utf8")).trim();
-    if (!b64 || b64.length < 80) return;
-    const gz = Buffer.from(b64, "base64");
-    gunzipSync(gz);
-    await mkdir(dirname(SEARCH_INDEX_GZ), { recursive: true });
-    await writeFile(SEARCH_INDEX_GZ, gz);
-    console.log("search index restored from scripts/search-index.b64");
-  } catch (err) {
-    console.warn("search index skipped:", err instanceof Error ? err.message : err);
+  const dest = path.join(SEARCH, "index.json.gz");
+  if (existsSync(dest) && statSync(dest).size > 100_000) {
+    console.log(`index recherche déjà là (${statSync(dest).size} o)`);
+    return;
   }
-}
 
-async function ensureExplorerIndex() {
+  const jsonPath = path.join(ROOT, "src", "data", "pieces-index.json");
+  if (existsSync(jsonPath) && statSync(jsonPath).size > 50_000) {
+    writeFileSync(dest, gzipSync(readFileSync(jsonPath)));
+    console.log(`index recherche gzip depuis pieces-index.json (${statSync(dest).size} o)`);
+    return;
+  }
+
+  const localDir = path.join(ROOT, "scripts", "search-index");
+  const localParts = existsSync(localDir)
+    ? readdirSync(localDir)
+        .filter((f) => /^part-\d+\.b64$/.test(f))
+        .sort()
+    : [];
+
+  let b64 = "";
+  if (localParts.length >= 8) {
+    b64 = localParts
+      .map((n) => readFileSync(path.join(localDir, n), "utf8").replace(/\s/g, ""))
+      .join("");
+  } else {
+    const chunks = [];
+    for (let i = 0; i < 16; i += 1) {
+      const name = `part-${String(i).padStart(2, "0")}.b64`;
+      const res = await fetch(`${INDEX_PARTS_REMOTE}/${name}`);
+      if (!res.ok) break;
+      chunks.push((await res.text()).replace(/\s/g, ""));
+    }
+    b64 = chunks.join("");
+  }
+
+  if (b64.length < 10_000) {
+    console.warn("index recherche manquant — message honnête côté UI, PDF toujours téléchargeables.");
+    return;
+  }
+
+  const buf = Buffer.from(b64, "base64");
   try {
-    const b64 = (await readFile(EXPLORER_INDEX_B64, "utf8")).trim();
-    if (!b64 || b64.length < 80) {
-      console.warn("explorer index skipped: missing or empty scripts/explorer-index.b64");
+    const docs = JSON.parse(gunzipSync(buf).toString("utf8"));
+    if (!Array.isArray(docs) || docs.length < 20) {
+      console.warn(`index recherche trop petit (${Array.isArray(docs) ? docs.length : 0} docs)`);
       return;
     }
-    const gz = Buffer.from(b64, "base64");
-    gunzipSync(gz);
-    await mkdir(dirname(EXPLORER_INDEX_GZ), { recursive: true });
-    await writeFile(EXPLORER_INDEX_GZ, gz);
-    console.log("explorer index restored from scripts/explorer-index.b64");
   } catch (err) {
-    console.warn("explorer index skipped:", err instanceof Error ? err.message : err);
+    console.warn("index recherche gzip illisible", err);
+    return;
   }
+
+  writeFileSync(dest, buf);
+  console.log(`index recherche écrit (${buf.length} o)`);
 }
 
-async function main() {
-  await mkdir(PIECES, { recursive: true });
-  await mkdir(FONTS, { recursive: true });
-  let ok = 0;
-  for (const [name, remote] of FILES) {
-    const dest = join(PIECES, name);
-    if (await exists(dest)) {
-      ok += 1;
-      continue;
-    }
-    try {
-      await download(`${BASE}/pieces/${remote}`, dest);
-      ok += 1;
-      console.log("got", name);
-    } catch (err) {
-      console.warn("skip", name, err instanceof Error ? err.message : err);
-    }
+function ensureExplorerIndex() {
+  const dest = path.join(EXPLORER, "index.json.gz");
+  const jsonPath = path.join(ROOT, "src", "data", "explorer.json");
+  const b64Path = path.join(ROOT, "scripts", "explorer-index.b64");
+  if (existsSync(dest) && statSync(dest).size > 5_000) {
+    console.log(`index explorateur déjà là (${statSync(dest).size} o)`);
+    return;
   }
-  for (const [name, remote] of FONTS_FILES) {
-    const dest = join(FONTS, name);
-    if (await exists(dest)) continue;
-    try {
-      await download(`${BASE}/fonts/${remote}`, dest);
-      console.log("got font", name);
-    } catch (err) {
-      console.warn("skip font", name, err instanceof Error ? err.message : err);
+  if (existsSync(jsonPath) && statSync(jsonPath).size > 5_000) {
+    writeFileSync(dest, gzipSync(readFileSync(jsonPath)));
+    console.log(`index explorateur gzip depuis explorer.json (${statSync(dest).size} o)`);
+    return;
+  }
+  if (existsSync(b64Path)) {
+    const buf = Buffer.from(readFileSync(b64Path, "utf8").replace(/\s/g, ""), "base64");
+    if (buf.length > 5_000 && buf[0] === 0x1f && buf[1] === 0x8b) {
+      writeFileSync(dest, buf);
+      console.log(`index explorateur depuis explorer-index.b64 (${buf.length} o)`);
+      return;
     }
   }
-  await ensureSearchIndex();
-  await ensureExplorerIndex();
-  console.log(`pieces ready: ${ok}/${FILES.length}`);
-  if (ok < 40) {
-    console.error("too few pieces; set FINANCES_PIECES_BASE or check the fonds deployment");
-    process.exit(1);
-  }
+  console.warn("index explorateur manquant — message honnête côté UI.");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+await ensureSatoshi();
+await ensureSearchIndex();
+ensureExplorerIndex();
+
+await Promise.all([
+  pull(`${SITE}/brand/logo-ps-rose.png`, path.join(BRAND, "logo-ps-rose.png")),
+  pull(`${SITE}/brand/poing-rose.png`, path.join(BRAND, "poing-rose.png")),
+  pull(`${SITE}/brand/poing-rose-blanc.png`, path.join(BRAND, "poing-rose-blanc.png")),
+  pull(ANYBODY, path.join(FONTS, "Anybody-Variable.ttf"), 50_000),
+]);
+
+const poing = path.join(BRAND, "poing-rose.png");
+const icon = path.join(ROOT, "src/app/icon.png");
+if (existsSync(poing) && !existsSync(icon)) {
+  writeFileSync(icon, readFileSync(poing));
+}
+
+const results = await Promise.all(FILES.map(ensure));
+const got = results.filter((r) => r !== "miss").length;
+console.log(`pièces présentes : ${got}/${FILES.length}`);
+if (got < 40) process.exit(1);
