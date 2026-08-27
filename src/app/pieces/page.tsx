@@ -34,7 +34,7 @@ export default function PiecesPage() {
         Pièces du conseil nommées par leur fichier réel (01. CCTP, 04. Maquette
         CA 2025, 06. Maquette DM n°1, 02. Règlement budgétaire et financier…).{" "}
         {NOMENCLATURE_ACTES} Les 46 PDF du fonds se téléchargent ici. Les deux
-        pièces foncieres volumineuses (33. Promesse, 34. Promesse d’achat) ont
+        pièces foncières volumineuses (33. Promesse, 34. Promesse d’achat) ont
         un bouton de téléchargement sur leur fiche.
       </p>
       <PiecesSearch />
