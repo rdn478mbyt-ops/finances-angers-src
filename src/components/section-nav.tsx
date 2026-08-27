@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const items = [
+  { href: "/explorer", label: "Explorateur" },
   { href: "/ville/fonctionnement", label: "Ville · fonctionnement" },
   { href: "/ville/investissement", label: "Ville · investissement" },
   { href: "/boa/fonctionnement", label: "BOA · fonctionnement" },

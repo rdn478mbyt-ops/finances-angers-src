@@ -12,7 +12,9 @@ export function SourceCite({
 }) {
   if (!source) return null;
   const piece = pieceById(source.pieceId);
-  const href = piece?.href ? `/pieces/${piece.id}` : piece?.externalUrl;
+  const pageQuery =
+    source.page != null && source.page > 0 ? `?page=${source.page}` : "";
+  const href = piece ? `/pieces/${piece.id}${pageQuery}` : undefined;
   const text = source.label;
   const className = cn(
     "font-sans text-xs underline-offset-2 hover:underline",
