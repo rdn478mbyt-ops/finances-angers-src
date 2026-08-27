@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionNav } from "@/components/section-nav";
 import { SourceCite } from "@/components/source-cite";
 import { villeCa2025 } from "@/data/figures";
@@ -47,6 +48,30 @@ export default function VilleFonctionnementPage() {
         du rapport. Les intérêts de la dette sont ici ; le capital est en
         investissement. Masse salariale : {formatPercent(masse)} du
         fonctionnement hors frais financiers.
+      </p>
+      <p className="mt-4 text-sm text-ink/80">
+        Détail chapitre → compte :{" "}
+        <Link
+          href="/explorer?entity=ville&section=fonctionnement&flow=depense&chapitre=011"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          011 charges générales
+        </Link>
+        ,{" "}
+        <Link
+          href="/explorer?entity=ville&section=fonctionnement&flow=depense&chapitre=012"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          012 personnel
+        </Link>
+        ,{" "}
+        <Link
+          href="/explorer?entity=ville&section=fonctionnement&flow=recette&chapitre=731"
+          className="underline decoration-rose/40 hover:text-rouge"
+        >
+          731 fiscalité locale
+        </Link>
+        . Sources : compte de gestion Ville et maquette CA.
       </p>
       <div className="mt-8">
         <ScaleBars

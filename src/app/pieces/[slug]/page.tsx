@@ -3,7 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { allPieces, pieceById } from "@/data/documents";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
+};
 
 export function generateStaticParams() {
   return allPieces.map((p) => ({ slug: p.id }));
@@ -15,16 +18,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: piece?.title ?? "Pièce" };
 }
 
+function requestedPage(raw: string | string[] | undefined) {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (!value) return null;
+  const n = Number.parseInt(value, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 function rbfLabel(file?: string) {
   if (!file?.includes("fnancier")) return null;
   return "Règlement budgétaire et financier";
 }
 
-export default async function PiecePage({ params }: Props) {
+export default async function PiecePage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { page: pageRaw } = await searchParams;
+  const page = requestedPage(pageRaw);
   const piece = pieceById(slug);
   if (!piece) notFound();
   const readable = rbfLabel(piece.file);
+  const iframeSrc =
+    piece.href && page ? `${piece.href}#page=${page}` : piece.href;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -59,8 +73,13 @@ export default async function PiecePage({ params }: Props) {
               Télécharger le PDF
             </a>
           </p>
+          {page ? (
+            <p className="mt-3 text-sm text-ink/80">
+              Ouverture à la page {page} (ancre PDF <code className="font-mono text-xs">#page={page}</code>).
+            </p>
+          ) : null}
           <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
-            <iframe title={piece.title} src={piece.href} className="h-[80vh] w-full" />
+            <iframe title={piece.title} src={iframeSrc} className="h-[80vh] w-full" />
           </div>
         </>
       ) : piece.externalUrl ? (
