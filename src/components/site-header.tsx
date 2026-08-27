@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Accueil", full: "Accueil" },
+  { href: "/explorer", label: "Explorer", full: "Explorateur budgétaire" },
   { href: "/ratios", label: "FNESR", full: "Grille FNESR" },
   { href: "/ville/fonctionnement", label: "Ville Fonc.", full: "Ville · fonctionnement" },
   { href: "/ville/investissement", label: "Ville Inv.", full: "Ville · investissement" },
