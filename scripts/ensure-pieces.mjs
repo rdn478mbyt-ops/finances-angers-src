@@ -205,10 +205,28 @@ async function ensureSearchIndex() {
   console.log(`index recherche écrit (${buf.length} o)`);
 }
 
+function loadExplorerB64() {
+  const partDir = path.join(ROOT, "scripts", "explorer-index");
+  const localParts = existsSync(partDir)
+    ? readdirSync(partDir)
+        .filter((f) => /^part-\d+\.b64$/.test(f))
+        .sort()
+    : [];
+  if (localParts.length >= 8) {
+    return localParts
+      .map((n) => readFileSync(path.join(partDir, n), "utf8").replace(/\s/g, ""))
+      .join("");
+  }
+  const b64Path = path.join(ROOT, "scripts", "explorer-index.b64");
+  if (existsSync(b64Path)) {
+    return readFileSync(b64Path, "utf8").replace(/\s/g, "");
+  }
+  return "";
+}
+
 function ensureExplorerIndex() {
   const dest = path.join(EXPLORER, "index.json.gz");
   const jsonPath = path.join(ROOT, "src", "data", "explorer.json");
-  const b64Path = path.join(ROOT, "scripts", "explorer-index.b64");
   if (existsSync(dest) && statSync(dest).size > 5_000) {
     console.log(`index explorateur déjà là (${statSync(dest).size} o)`);
     return;
@@ -218,11 +236,12 @@ function ensureExplorerIndex() {
     console.log(`index explorateur gzip depuis explorer.json (${statSync(dest).size} o)`);
     return;
   }
-  if (existsSync(b64Path)) {
-    const buf = Buffer.from(readFileSync(b64Path, "utf8").replace(/\s/g, ""), "base64");
+  const b64 = loadExplorerB64();
+  if (b64.length > 10_000) {
+    const buf = Buffer.from(b64, "base64");
     if (buf.length > 5_000 && buf[0] === 0x1f && buf[1] === 0x8b) {
       writeFileSync(dest, buf);
-      console.log(`index explorateur depuis explorer-index.b64 (${buf.length} o)`);
+      console.log(`index explorateur depuis scripts/explorer-index (${buf.length} o)`);
       return;
     }
   }
