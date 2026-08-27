@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { RatioCard } from "@/components/ratio-card";
 import { villeRatios, boaRatios, knownRatios } from "@/lib/ratios";
 import { detteNote } from "@/data/figures";
@@ -18,7 +19,12 @@ export default function RatiosPage() {
         Atelier FNESR-Condorcet, 26 août 2026, Blois. Seuils visuels, pas un
         tract. Deux sections (fonctionnement / investissement), deux entités
         (Ville / BOA). Capital de la dette en investissement, intérêts en
-        fonctionnement.
+        fonctionnement. Pour le détail chapitre → compte, l’
+        <Link href="/explorer" className="underline decoration-rose/40 hover:text-rouge">
+          explorateur
+        </Link>{" "}
+        lit le compte de gestion et la maquette, pas les agrégats de cette
+        grille.
       </p>
 
       <section className="mt-8 rounded-xl border bg-white p-5 shadow-[0_1px_8px_rgba(15,23,42,0.06)]">

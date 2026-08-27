@@ -18,7 +18,10 @@ export function SiteFooter() {
             publics. Aucune donnée inventée.
           </p>
         </div>
-        <nav className="flex gap-4 text-sm">
+        <nav className="flex flex-wrap gap-4 text-sm">
+          <Link href="/explorer" className="text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge">
+            Explorateur
+          </Link>
           <Link href="/methode" className="text-ink underline decoration-rose/40 underline-offset-2 hover:text-rouge">
             Méthode et sources
           </Link>
